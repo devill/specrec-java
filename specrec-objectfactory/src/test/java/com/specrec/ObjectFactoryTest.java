@@ -226,6 +226,55 @@ public class ObjectFactoryTest {
         assertEquals(99, result.getValue());
     }
 
+    @Test
+    void createGeneric_WithMock_CallsConstructorCalledWithParameterDetails() {
+        ObjectFactory factory = new ObjectFactory();
+        MockTestImplementation mockObj = new MockTestImplementation();
+        
+        factory.setOne(ITestInterface.class, mockObj);
+        
+        factory.create(ITestInterface.class, TestImplementationWithConstructor.class, "testArg", 42);
+        
+        // Verify parameter details were extracted correctly
+        assertNotNull(mockObj.getLastParameterDetails());
+        assertEquals(2, mockObj.getLastParameterDetails().length);
+        
+        assertEquals("name: String = testArg", mockObj.getLastParameterDetails()[0].toString());
+        assertEquals("value: int = 42", mockObj.getLastParameterDetails()[1].toString());
+    }
+    
+    @Test
+    void create_WithTestClassWithConstructor_ExtractsParameterNames() {
+        ObjectFactory factory = new ObjectFactory();
+        MockTestClassWithConstructor mockObj = new MockTestClassWithConstructor();
+        
+        factory.setOne(TestClassWithConstructor.class, mockObj);
+        
+        factory.create(TestClassWithConstructor.class, "paramName", 99);
+        
+        assertNotNull(mockObj.getLastParameterDetails());
+        assertEquals(2, mockObj.getLastParameterDetails().length);
+        
+        assertEquals("name: String = paramName", mockObj.getLastParameterDetails()[0].toString());
+        assertEquals("value: int = 99", mockObj.getLastParameterDetails()[1].toString());
+    }
+    
+    @Test
+    void create_WithNoMatchingConstructor_UsesGenericParameterNames() {
+        ObjectFactory factory = new ObjectFactory();
+        MockTestImplementation mockObj = new MockTestImplementation();
+        
+        factory.setOne(ITestInterface.class, mockObj);
+        
+        factory.create(ITestInterface.class, TestImplementation.class, "unexpected", 42);
+        
+        assertNotNull(mockObj.getLastParameterDetails());
+        assertEquals(2, mockObj.getLastParameterDetails().length);
+        
+        assertEquals("arg0: String = unexpected", mockObj.getLastParameterDetails()[0].toString());
+        assertEquals("arg1: Integer = 42", mockObj.getLastParameterDetails()[1].toString());
+    }
+
     // Test helper classes
     public static class TestClass {
     }
@@ -254,16 +303,43 @@ public class ObjectFactoryTest {
     public static class TestImplementation implements ITestInterface {
     }
 
+    public static class TestImplementationWithConstructor implements ITestInterface {
+        private final String name;
+        private final int value;
+
+        public TestImplementationWithConstructor(String name, int value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
     public static class MockTestImplementation implements ITestInterface, IConstructorCalledWith {
         private Object[] lastConstructorArgs;
+        private ConstructorParameterInfo[] lastParameterDetails;
 
         @Override
-        public void constructorCalledWith(Object... args) {
-            this.lastConstructorArgs = args;
+        public void constructorCalledWith(ConstructorParameterInfo[] parameters) {
+            this.lastParameterDetails = parameters;
+            this.lastConstructorArgs = new Object[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                this.lastConstructorArgs[i] = parameters[i].getValue();
+            }
         }
 
         public Object[] getLastConstructorArgs() {
             return lastConstructorArgs;
+        }
+
+        public ConstructorParameterInfo[] getLastParameterDetails() {
+            return lastParameterDetails;
         }
     }
 
@@ -307,14 +383,49 @@ public class ObjectFactoryTest {
 
     public static class MockChildClass extends ParentClass implements IConstructorCalledWith {
         private Object[] lastConstructorArgs;
+        private ConstructorParameterInfo[] lastParameterDetails;
 
         @Override
-        public void constructorCalledWith(Object... args) {
-            this.lastConstructorArgs = args;
+        public void constructorCalledWith(ConstructorParameterInfo[] parameters) {
+            this.lastParameterDetails = parameters;
+            this.lastConstructorArgs = new Object[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                this.lastConstructorArgs[i] = parameters[i].getValue();
+            }
         }
 
         public Object[] getLastConstructorArgs() {
             return lastConstructorArgs;
+        }
+
+        public ConstructorParameterInfo[] getLastParameterDetails() {
+            return lastParameterDetails;
+        }
+    }
+
+    public static class MockTestClassWithConstructor extends TestClassWithConstructor implements IConstructorCalledWith {
+        private Object[] lastConstructorArgs;
+        private ConstructorParameterInfo[] lastParameterDetails;
+
+        public MockTestClassWithConstructor() {
+            super("default", 0);
+        }
+
+        @Override
+        public void constructorCalledWith(ConstructorParameterInfo[] parameters) {
+            this.lastParameterDetails = parameters;
+            this.lastConstructorArgs = new Object[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                this.lastConstructorArgs[i] = parameters[i].getValue();
+            }
+        }
+
+        public Object[] getLastConstructorArgs() {
+            return lastConstructorArgs;
+        }
+
+        public ConstructorParameterInfo[] getLastParameterDetails() {
+            return lastParameterDetails;
         }
     }
 

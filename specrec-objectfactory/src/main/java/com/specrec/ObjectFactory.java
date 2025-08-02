@@ -1,6 +1,7 @@
 package com.specrec;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class ObjectFactory {
 
     public <I, T extends I> I create(Class<I> interfaceType, Class<T> implementationType, Object... args) {
         I obj = fetchObject(interfaceType, implementationType, args);
-        logConstructorCall(obj, args);
+        logConstructorCall(obj, implementationType, args);
         return obj;
     }
 
@@ -50,10 +51,90 @@ public class ObjectFactory {
         return createInstance(implementationType, args);
     }
 
-    private static void logConstructorCall(Object obj, Object[] args) {
+    private static <T> void logConstructorCall(Object obj, Class<T> implementationType, Object[] args) {
         if (obj instanceof IConstructorCalledWith) {
-            ((IConstructorCalledWith) obj).constructorCalledWith(args);
+            ConstructorParameterInfo[] parameterInfos = extractParameterInfo(implementationType, args);
+            ((IConstructorCalledWith) obj).constructorCalledWith(parameterInfos);
         }
+    }
+
+    private static <T> ConstructorParameterInfo[] extractParameterInfo(Class<T> type, Object[] args) {
+        Constructor<T> matchingConstructor = findMatchingConstructor(type, args);
+        
+        return matchingConstructor == null 
+            ? createParameterInfosWithoutConstructor(args) 
+            : createParameterInfosFromConstructor(matchingConstructor, args);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Constructor<T> findMatchingConstructor(Class<T> type, Object[] args) {
+        Constructor<?>[] constructors = type.getConstructors();
+
+        for (Constructor<?> constructor : constructors) {
+            if (isConstructorMatch(constructor, args)) {
+                return (Constructor<T>) constructor;
+            }
+        }
+        
+        return null;
+    }
+
+    private static boolean isConstructorMatch(Constructor<?> constructor, Object[] args) {
+        Class<?>[] ctorParams = constructor.getParameterTypes();
+        if (ctorParams.length != args.length) {
+            return false;
+        }
+
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] != null && !ctorParams[i].isAssignableFrom(args[i].getClass())) {
+                if (!isPrimitiveCompatible(ctorParams[i], args[i].getClass())) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    private static <T> ConstructorParameterInfo[] createParameterInfosFromConstructor(Constructor<T> constructor, Object[] args) {
+        Parameter[] parameters = constructor.getParameters();
+        ConstructorParameterInfo[] parameterInfos = new ConstructorParameterInfo[parameters.length];
+        
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter parameter = parameters[i];
+            Object value = i < args.length ? args[i] : null;
+            parameterInfos[i] = new ConstructorParameterInfo(parameter.getName(), parameter.getType(), value);
+        }
+        
+        return parameterInfos;
+    }
+
+    private static ConstructorParameterInfo[] createParameterInfosWithoutConstructor(Object[] args) {
+        ConstructorParameterInfo[] parameterInfos = new ConstructorParameterInfo[args.length];
+        
+        for (int i = 0; i < args.length; i++) {
+            Class<?> argType = args[i] != null ? args[i].getClass() : Object.class;
+            parameterInfos[i] = new ConstructorParameterInfo("arg" + i, argType, args[i]);
+        }
+        
+        return parameterInfos;
+    }
+
+    private static boolean isPrimitiveCompatible(Class<?> parameterType, Class<?> argumentType) {
+        if (parameterType.isAssignableFrom(argumentType)) return true;
+        
+        // Handle primitive to wrapper conversions
+        if (parameterType == int.class && argumentType == Integer.class) return true;
+        if (parameterType == String.class && argumentType == String.class) return true;
+        if (parameterType == boolean.class && argumentType == Boolean.class) return true;
+        if (parameterType == double.class && argumentType == Double.class) return true;
+        if (parameterType == float.class && argumentType == Float.class) return true;
+        if (parameterType == long.class && argumentType == Long.class) return true;
+        if (parameterType == char.class && argumentType == Character.class) return true;
+        if (parameterType == byte.class && argumentType == Byte.class) return true;
+        if (parameterType == short.class && argumentType == Short.class) return true;
+        
+        return false;
     }
 
     public <T> void setOne(Class<T> type, T obj) {
@@ -89,7 +170,7 @@ public class ObjectFactory {
                     boolean matches = true;
                     
                     for (int i = 0; i < args.length; i++) {
-                        if (args[i] != null && !isAssignable(paramTypes[i], args[i].getClass())) {
+                        if (args[i] != null && !isPrimitiveCompatible(paramTypes[i], args[i].getClass())) {
                             matches = false;
                             break;
                         }
@@ -108,25 +189,6 @@ public class ObjectFactory {
         }
     }
 
-    private boolean isAssignable(Class<?> paramType, Class<?> argType) {
-        if (paramType.isAssignableFrom(argType)) {
-            return true;
-        }
-
-        // Handle primitive to wrapper conversions
-        if (paramType.isPrimitive()) {
-            if (paramType == int.class && argType == Integer.class) return true;
-            if (paramType == long.class && argType == Long.class) return true;
-            if (paramType == double.class && argType == Double.class) return true;
-            if (paramType == float.class && argType == Float.class) return true;
-            if (paramType == boolean.class && argType == Boolean.class) return true;
-            if (paramType == char.class && argType == Character.class) return true;
-            if (paramType == byte.class && argType == Byte.class) return true;
-            if (paramType == short.class && argType == Short.class) return true;
-        }
-
-        return false;
-    }
 }
 
 // Global convenience functions
