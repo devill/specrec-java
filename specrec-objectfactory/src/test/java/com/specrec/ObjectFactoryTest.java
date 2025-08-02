@@ -3,6 +3,7 @@ package com.specrec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import static com.specrec.GlobalObjectFactory.*;
 
 public class ObjectFactoryTest {
 
@@ -182,13 +183,13 @@ public class ObjectFactoryTest {
         assertNotSame(testObj2, result2);
     }
 
-    // Tests for ObjectCreation static convenience class
+    // Tests for GlobalObjectFactory static convenience class
     @Test
-    void objectCreation_Create_UsesObjectFactoryInstance() {
+    void globalObjectFactory_Create_UsesObjectFactoryInstance() {
         TestClass testObj = new TestClass();
         ObjectFactory.getInstance().setOne(TestClass.class, testObj);
         
-        TestClass result = ObjectCreation.create(TestClass.class);
+        TestClass result = GlobalObjectFactory.create(TestClass.class);
         
         assertSame(testObj, result);
         
@@ -197,11 +198,11 @@ public class ObjectFactoryTest {
     }
 
     @Test
-    void objectCreation_CreateGeneric_UsesObjectFactoryInstance() {
+    void globalObjectFactory_CreateGeneric_UsesObjectFactoryInstance() {
         TestServiceMockForObjectCreation mockObj = new TestServiceMockForObjectCreation();
         ObjectFactory.getInstance().setOne(ITestServiceForObjectCreation.class, mockObj);
         
-        ITestServiceForObjectCreation result = ObjectCreation.create(ITestServiceForObjectCreation.class, TestServiceImplForObjectCreation.class);
+        ITestServiceForObjectCreation result = GlobalObjectFactory.create(ITestServiceForObjectCreation.class, TestServiceImplForObjectCreation.class);
         
         assertSame(mockObj, result);
         
@@ -210,11 +211,19 @@ public class ObjectFactoryTest {
     }
 
     @Test
-    void objectCreation_Create_PassesConstructorArgs() {
-        TestClassWithConstructor result = ObjectCreation.create(TestClassWithConstructor.class, "test", 42);
+    void globalObjectFactory_Create_PassesConstructorArgs() {
+        TestClassWithConstructor result = GlobalObjectFactory.create(TestClassWithConstructor.class, "test", 42);
         
         assertEquals("test", result.getName());
         assertEquals(42, result.getValue());
+    }
+
+    @Test
+    void directCreate_WithStaticImport_WorksWithoutClassPrefix() {
+        TestClassWithConstructor result = create(TestClassWithConstructor.class, "direct", 99);
+        
+        assertEquals("direct", result.getName());
+        assertEquals(99, result.getValue());
     }
 
     // Test helper classes

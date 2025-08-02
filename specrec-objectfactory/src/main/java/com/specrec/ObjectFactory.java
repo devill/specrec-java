@@ -27,12 +27,10 @@ public class ObjectFactory {
         return instance;
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T create(Class<T> type, Object... args) {
         return create(type, type, args);
     }
 
-    @SuppressWarnings("unchecked")
     public <I, T extends I> I create(Class<I> interfaceType, Class<T> implementationType, Object... args) {
         I obj = fetchObject(interfaceType, implementationType, args);
         logConstructorCall(obj, args);
@@ -132,7 +130,7 @@ public class ObjectFactory {
 }
 
 // Global convenience functions
-class ObjectCreation {
+class GlobalObjectFactory {
     public static <T> T create(Class<T> type, Object... args) {
         return ObjectFactory.getInstance().create(type, args);
     }
