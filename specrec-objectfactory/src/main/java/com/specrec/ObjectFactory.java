@@ -39,9 +39,7 @@ public class ObjectFactory {
             I queuedObj = (I) queuedObjects.get(interfaceType).poll();
 
             // If the queued object implements IConstructorCalledWith, call it with constructor args
-            if (queuedObj instanceof IConstructorCalledWith) {
-                ((IConstructorCalledWith) queuedObj).constructorCalledWith(args);
-            }
+            logConstructorCall(queuedObj, args);
 
             return queuedObj;
         }
@@ -51,15 +49,19 @@ public class ObjectFactory {
             I alwaysObj = (I) alwaysObjects.get(interfaceType);
 
             // If always object implements IConstructorCalledWith, call it with constructor args
-            if (alwaysObj instanceof IConstructorCalledWith) {
-                ((IConstructorCalledWith) alwaysObj).constructorCalledWith(args);
-            }
+            logConstructorCall(alwaysObj, args);
 
             return alwaysObj;
         }
 
         // Default: create concrete implementation
         return createInstance(implementationType, args);
+    }
+
+    private static void logConstructorCall(Object obj, Object[] args) {
+        if (obj instanceof IConstructorCalledWith) {
+            ((IConstructorCalledWith) obj).constructorCalledWith(args);
+        }
     }
 
     public <T> void setOne(Class<T> type, T obj) {
