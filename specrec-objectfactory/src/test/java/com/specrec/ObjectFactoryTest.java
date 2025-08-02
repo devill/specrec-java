@@ -270,4 +270,130 @@ public class ObjectFactoryTest {
 
     public static class TestServiceMockForObjectCreation implements ITestServiceForObjectCreation {
     }
+
+    // Test helper classes for inheritance scenarios
+    public static class ParentClass {
+        private String parentProperty = "parent";
+
+        public String getParentProperty() {
+            return parentProperty;
+        }
+
+        public void setParentProperty(String parentProperty) {
+            this.parentProperty = parentProperty;
+        }
+    }
+
+    public static class ChildClass extends ParentClass {
+        private final String childProperty;
+
+        public ChildClass(String childValue) {
+            this.childProperty = childValue;
+        }
+
+        public String getChildProperty() {
+            return childProperty;
+        }
+    }
+
+    public static class MockChildClass extends ParentClass implements IConstructorCalledWith {
+        private Object[] lastConstructorArgs;
+
+        @Override
+        public void constructorCalledWith(Object... args) {
+            this.lastConstructorArgs = args;
+        }
+
+        public Object[] getLastConstructorArgs() {
+            return lastConstructorArgs;
+        }
+    }
+
+    // Test for constructor logging via delegation
+    @Test
+    void create_WithConstructorCalledWith_CallsMethodViaDelegation() {
+        MockTestImplementation mockObj = new MockTestImplementation();
+        
+        factory.setOne(MockTestImplementation.class, mockObj);
+        
+        factory.create(MockTestImplementation.class, "arg1", 123);
+        
+        assertNotNull(mockObj.getLastConstructorArgs());
+        assertEquals(2, mockObj.getLastConstructorArgs().length);
+        assertEquals("arg1", mockObj.getLastConstructorArgs()[0]);
+        assertEquals(123, mockObj.getLastConstructorArgs()[1]);
+    }
+
+    // Inheritance tests for Create<T> scenarios
+    @Test
+    void create_WithParentType_SetChildInstance_ReturnsChildAsParent() {
+        ChildClass childInstance = new ChildClass("child value");
+        
+        factory.setOne(ParentClass.class, childInstance);
+        
+        ParentClass result = factory.create(ParentClass.class);
+        
+        assertSame(childInstance, result);
+        assertInstanceOf(ChildClass.class, result);
+        assertEquals("child value", ((ChildClass) result).getChildProperty());
+    }
+
+    @Test
+    void create_WithParentType_SetAlwaysChild_AlwaysReturnsChild() {
+        ChildClass childInstance = new ChildClass("always child");
+        
+        factory.setAlways(ParentClass.class, childInstance);
+        
+        ParentClass result1 = factory.create(ParentClass.class);
+        ParentClass result2 = factory.create(ParentClass.class);
+        
+        assertSame(childInstance, result1);
+        assertSame(childInstance, result2);
+        assertInstanceOf(ChildClass.class, result1);
+        assertEquals("always child", ((ChildClass) result1).getChildProperty());
+    }
+
+    @Test
+    void create_WithParentType_NoSetup_CreatesParentDirectly() {
+        ParentClass result = factory.create(ParentClass.class);
+        
+        assertNotNull(result);
+        assertInstanceOf(ParentClass.class, result);
+        // Should not be ChildClass since no constructor arguments provided
+        assertEquals(ParentClass.class, result.getClass());
+    }
+
+    @Test
+    void create_WithParentType_ChildWithConstructorArgs_LogsCorrectly() {
+        MockChildClass mockChild = new MockChildClass();
+        
+        factory.setOne(ParentClass.class, mockChild);
+        
+        factory.create(ParentClass.class, "parent arg", 42);
+        
+        assertNotNull(mockChild.getLastConstructorArgs());
+        assertEquals(2, mockChild.getLastConstructorArgs().length);
+        assertEquals("parent arg", mockChild.getLastConstructorArgs()[0]);
+        assertEquals(42, mockChild.getLastConstructorArgs()[1]);
+    }
+
+    @Test
+    void create_WithParentType_SetOnePriorityOverSetAlways() {
+        ChildClass alwaysChild = new ChildClass("always");
+        ChildClass queuedChild = new ChildClass("queued");
+        
+        factory.setAlways(ParentClass.class, alwaysChild);
+        factory.setOne(ParentClass.class, queuedChild);
+        
+        ParentClass result1 = factory.create(ParentClass.class);
+        ParentClass result2 = factory.create(ParentClass.class);
+        
+        // First call should return queued child
+        assertSame(queuedChild, result1);
+        assertEquals("queued", ((ChildClass) result1).getChildProperty());
+        
+        // Second call should return always child (queue is empty)
+        assertSame(alwaysChild, result2);
+        assertEquals("always", ((ChildClass) result2).getChildProperty());
+    }
 }
