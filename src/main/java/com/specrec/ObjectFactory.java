@@ -28,14 +28,35 @@ public class ObjectFactory {
         return instance;
     }
 
-    public <T> T create(Class<T> type, Object... args) {
-        return create(type, type, args);
+    public <T> CreateBuilder<T> create(Class<T> type) {
+        return new CreateBuilder<>(this, type, type);
     }
 
-    public <I, T extends I> I create(Class<I> interfaceType, Class<T> implementationType, Object... args) {
+    public <I, T extends I> CreateBuilder<I> create(Class<I> interfaceType, Class<T> implementationType) {
+        return new CreateBuilder<>(this, interfaceType, implementationType);
+    }
+
+    <I, T extends I> I createInternal(Class<I> interfaceType, Class<T> implementationType, Object... args) {
         I obj = fetchObject(interfaceType, implementationType, args);
         logConstructorCall(obj, implementationType, args);
         return obj;
+    }
+
+    public static class CreateBuilder<I> {
+        private final ObjectFactory factory;
+        private final Class<I> interfaceType;
+        private final Class<?> implementationType;
+
+        @SuppressWarnings("unchecked")
+        private <T extends I> CreateBuilder(ObjectFactory factory, Class<I> interfaceType, Class<T> implementationType) {
+            this.factory = factory;
+            this.interfaceType = interfaceType;
+            this.implementationType = implementationType;
+        }
+
+        public I with(Object... args) {
+            return factory.createInternal(interfaceType, (Class<? extends I>) implementationType, args);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -193,11 +214,11 @@ public class ObjectFactory {
 
 // Global convenience functions
 class GlobalObjectFactory {
-    public static <T> T create(Class<T> type, Object... args) {
-        return ObjectFactory.getInstance().create(type, args);
+    public static <T> ObjectFactory.CreateBuilder<T> create(Class<T> type) {
+        return ObjectFactory.getInstance().create(type);
     }
 
-    public static <I, T extends I> I create(Class<I> interfaceType, Class<T> implementationType, Object... args) {
-        return ObjectFactory.getInstance().create(interfaceType, implementationType, args);
+    public static <I, T extends I> ObjectFactory.CreateBuilder<I> create(Class<I> interfaceType, Class<T> implementationType) {
+        return ObjectFactory.getInstance().create(interfaceType, implementationType);
     }
 }

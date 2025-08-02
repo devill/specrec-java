@@ -30,7 +30,7 @@ public class ObjectFactoryTest {
 
         @Test
         void create_WithoutSetup_CreatesDefaultInstance() {
-            TestClass result = factory.create(TestClass.class);
+            TestClass result = factory.create(TestClass.class).with();
             
             assertNotNull(result);
             assertInstanceOf(TestClass.class, result);
@@ -38,7 +38,7 @@ public class ObjectFactoryTest {
 
         @Test
         void create_WithConstructorArgs_PassesArgsToConstructor() {
-            TestClassWithConstructor result = factory.create(TestClassWithConstructor.class, "test", 42);
+            TestClassWithConstructor result = factory.create(TestClassWithConstructor.class).with("test", 42);
             
             assertEquals("test", result.getName());
             assertEquals(42, result.getValue());
@@ -46,7 +46,7 @@ public class ObjectFactoryTest {
 
         @Test
         void createGeneric_WithInterface_CreatesConcreteType() {
-            ITestInterface result = factory.create(ITestInterface.class, TestImplementation.class);
+            ITestInterface result = factory.create(ITestInterface.class, TestImplementation.class).with();
             
             assertInstanceOf(TestImplementation.class, result);
             assertInstanceOf(ITestInterface.class, result);
@@ -67,7 +67,7 @@ public class ObjectFactoryTest {
             TestClass testObj = new TestClass();
             
             factory.setOne(TestClass.class, testObj);
-            TestClass result = factory.create(TestClass.class);
+            TestClass result = factory.create(TestClass.class).with();
             
             assertSame(testObj, result);
         }
@@ -80,8 +80,8 @@ public class ObjectFactoryTest {
             factory.setOne(TestClass.class, obj1);
             factory.setOne(TestClass.class, obj2);
             
-            TestClass result1 = factory.create(TestClass.class);
-            TestClass result2 = factory.create(TestClass.class);
+            TestClass result1 = factory.create(TestClass.class).with();
+            TestClass result2 = factory.create(TestClass.class).with();
             
             assertSame(obj1, result1);
             assertSame(obj2, result2);
@@ -92,9 +92,9 @@ public class ObjectFactoryTest {
             TestClass testObj = new TestClass();
             
             factory.setOne(TestClass.class, testObj);
-            factory.create(TestClass.class); // Consume queued object
+            factory.create(TestClass.class).with(); // Consume queued object
             
-            TestClass result = factory.create(TestClass.class);
+            TestClass result = factory.create(TestClass.class).with();
             
             assertNotSame(testObj, result);
             assertInstanceOf(TestClass.class, result);
@@ -106,7 +106,7 @@ public class ObjectFactoryTest {
             
             factory.setOne(ITestInterface.class, mockObj);
             
-            ITestInterface result = factory.create(ITestInterface.class, TestImplementation.class);
+            ITestInterface result = factory.create(ITestInterface.class, TestImplementation.class).with();
             
             assertSame(mockObj, result);
         }
@@ -127,8 +127,8 @@ public class ObjectFactoryTest {
             
             factory.setAlways(TestClass.class, testObj);
             
-            TestClass result1 = factory.create(TestClass.class);
-            TestClass result2 = factory.create(TestClass.class);
+            TestClass result1 = factory.create(TestClass.class).with();
+            TestClass result2 = factory.create(TestClass.class).with();
             
             assertSame(testObj, result1);
             assertSame(testObj, result2);
@@ -142,7 +142,7 @@ public class ObjectFactoryTest {
             factory.setAlways(TestClass.class, alwaysObj);
             factory.setOne(TestClass.class, queuedObj);
             
-            TestClass result = factory.create(TestClass.class);
+            TestClass result = factory.create(TestClass.class).with();
             
             assertSame(queuedObj, result);
         }
@@ -167,7 +167,7 @@ public class ObjectFactoryTest {
             
             factory.clear(TestClass.class);
             
-            TestClass result = factory.create(TestClass.class);
+            TestClass result = factory.create(TestClass.class).with();
             
             assertNotSame(alwaysObj, result);
             assertNotSame(queuedObj, result);
@@ -184,8 +184,8 @@ public class ObjectFactoryTest {
             
             factory.clearAll();
             
-            TestClass result1 = factory.create(TestClass.class);
-            AnotherTestClass result2 = factory.create(AnotherTestClass.class);
+            TestClass result1 = factory.create(TestClass.class).with();
+            AnotherTestClass result2 = factory.create(AnotherTestClass.class).with();
             
             assertNotSame(testObj1, result1);
             assertNotSame(testObj2, result2);
@@ -207,7 +207,7 @@ public class ObjectFactoryTest {
             
             factory.setOne(ITestInterface.class, mockObj);
             
-            factory.create(ITestInterface.class, TestImplementation.class, "arg1", 123);
+            factory.create(ITestInterface.class, TestImplementation.class).with("arg1", 123);
             
             assertNotNull(mockObj.getLastConstructorArgs());
             assertEquals(2, mockObj.getLastConstructorArgs().length);
@@ -221,7 +221,7 @@ public class ObjectFactoryTest {
             
             factory.setAlways(ITestInterface.class, mockObj);
             
-            factory.create(ITestInterface.class, TestImplementation.class, "arg1", 123);
+            factory.create(ITestInterface.class, TestImplementation.class).with("arg1", 123);
             
             assertNotNull(mockObj.getLastConstructorArgs());
             assertEquals(2, mockObj.getLastConstructorArgs().length);
@@ -235,7 +235,7 @@ public class ObjectFactoryTest {
             
             factory.setOne(MockTestImplementation.class, mockObj);
             
-            factory.create(MockTestImplementation.class, "arg1", 123);
+            factory.create(MockTestImplementation.class).with("arg1", 123);
             
             assertNotNull(mockObj.getLastConstructorArgs());
             assertEquals(2, mockObj.getLastConstructorArgs().length);
@@ -249,7 +249,7 @@ public class ObjectFactoryTest {
             
             factory.setOne(TestClassWithConstructor.class, mockObj);
             
-            factory.create(TestClassWithConstructor.class, "paramName", 99);
+            factory.create(TestClassWithConstructor.class).with("paramName", 99);
             
             assertNotNull(mockObj.getLastParameterDetails());
             assertEquals(2, mockObj.getLastParameterDetails().length);
@@ -264,7 +264,7 @@ public class ObjectFactoryTest {
             
             factory.setOne(ITestInterface.class, mockObj);
             
-            factory.create(ITestInterface.class, TestImplementation.class, "unexpected", 42);
+            factory.create(ITestInterface.class, TestImplementation.class).with("unexpected", 42);
             
             assertNotNull(mockObj.getLastParameterDetails());
             assertEquals(2, mockObj.getLastParameterDetails().length);
@@ -289,7 +289,7 @@ public class ObjectFactoryTest {
             
             factory.setOne(ParentClass.class, childInstance);
             
-            ParentClass result = factory.create(ParentClass.class);
+            ParentClass result = factory.create(ParentClass.class).with();
             
             assertSame(childInstance, result);
             assertInstanceOf(ChildClass.class, result);
@@ -302,8 +302,8 @@ public class ObjectFactoryTest {
             
             factory.setAlways(ParentClass.class, childInstance);
             
-            ParentClass result1 = factory.create(ParentClass.class);
-            ParentClass result2 = factory.create(ParentClass.class);
+            ParentClass result1 = factory.create(ParentClass.class).with();
+            ParentClass result2 = factory.create(ParentClass.class).with();
             
             assertSame(childInstance, result1);
             assertSame(childInstance, result2);
@@ -313,7 +313,7 @@ public class ObjectFactoryTest {
 
         @Test
         void create_WithParentType_NoSetup_CreatesParentDirectly() {
-            ParentClass result = factory.create(ParentClass.class);
+            ParentClass result = factory.create(ParentClass.class).with();
             
             assertNotNull(result);
             assertInstanceOf(ParentClass.class, result);
@@ -327,7 +327,7 @@ public class ObjectFactoryTest {
             
             factory.setOne(ParentClass.class, mockChild);
             
-            factory.create(ParentClass.class, "parent arg", 42);
+            factory.create(ParentClass.class).with("parent arg", 42);
             
             assertNotNull(mockChild.getLastConstructorArgs());
             assertEquals(2, mockChild.getLastConstructorArgs().length);
@@ -343,8 +343,8 @@ public class ObjectFactoryTest {
             factory.setAlways(ParentClass.class, alwaysChild);
             factory.setOne(ParentClass.class, queuedChild);
             
-            ParentClass result1 = factory.create(ParentClass.class);
-            ParentClass result2 = factory.create(ParentClass.class);
+            ParentClass result1 = factory.create(ParentClass.class).with();
+            ParentClass result2 = factory.create(ParentClass.class).with();
             
             // First call should return queued child
             assertSame(queuedChild, result1);
@@ -363,7 +363,7 @@ public class ObjectFactoryTest {
             TestClass testObj = new TestClass();
             ObjectFactory.getInstance().setOne(TestClass.class, testObj);
             
-            TestClass result = GlobalObjectFactory.create(TestClass.class);
+            TestClass result = GlobalObjectFactory.create(TestClass.class).with();
             
             assertSame(testObj, result);
             
@@ -376,7 +376,7 @@ public class ObjectFactoryTest {
             MockTestImplementation mockObj = new MockTestImplementation();
             ObjectFactory.getInstance().setOne(ITestInterface.class, mockObj);
             
-            ITestInterface result = GlobalObjectFactory.create(ITestInterface.class, TestImplementation.class);
+            ITestInterface result = GlobalObjectFactory.create(ITestInterface.class, TestImplementation.class).with();
             
             assertSame(mockObj, result);
             
@@ -386,7 +386,7 @@ public class ObjectFactoryTest {
 
         @Test
         void globalObjectFactory_Create_PassesConstructorArgs() {
-            TestClassWithConstructor result = GlobalObjectFactory.create(TestClassWithConstructor.class, "test", 42);
+            TestClassWithConstructor result = GlobalObjectFactory.create(TestClassWithConstructor.class).with("test", 42);
             
             assertEquals("test", result.getName());
             assertEquals(42, result.getValue());
@@ -394,7 +394,7 @@ public class ObjectFactoryTest {
 
         @Test
         void directCreate_WithStaticImport_WorksWithoutClassPrefix() {
-            TestClassWithConstructor result = create(TestClassWithConstructor.class, "direct", 99);
+            TestClassWithConstructor result = create(TestClassWithConstructor.class).with("direct", 99);
             
             assertEquals("direct", result.getName());
             assertEquals(99, result.getValue());
