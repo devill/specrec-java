@@ -34,27 +34,21 @@ public class ObjectFactory {
 
     @SuppressWarnings("unchecked")
     public <I, T extends I> I create(Class<I> interfaceType, Class<T> implementationType, Object... args) {
-        // Check queued objects first (setOne)
+        I obj = fetchObject(interfaceType, implementationType, args);
+        logConstructorCall(obj, args);
+        return obj;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <I, T extends I> I fetchObject(Class<I> interfaceType, Class<T> implementationType, Object... args) {
         if (queuedObjects.containsKey(interfaceType) && !queuedObjects.get(interfaceType).isEmpty()) {
-            I queuedObj = (I) queuedObjects.get(interfaceType).poll();
-
-            // If the queued object implements IConstructorCalledWith, call it with constructor args
-            logConstructorCall(queuedObj, args);
-
-            return queuedObj;
+            return (I) queuedObjects.get(interfaceType).poll();
         }
 
-        // Then check always objects (setAlways)
         if (alwaysObjects.containsKey(interfaceType)) {
-            I alwaysObj = (I) alwaysObjects.get(interfaceType);
-
-            // If always object implements IConstructorCalledWith, call it with constructor args
-            logConstructorCall(alwaysObj, args);
-
-            return alwaysObj;
+            return (I) alwaysObjects.get(interfaceType);
         }
 
-        // Default: create concrete implementation
         return createInstance(implementationType, args);
     }
 
