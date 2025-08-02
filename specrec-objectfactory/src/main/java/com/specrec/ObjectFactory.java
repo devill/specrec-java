@@ -29,18 +29,7 @@ public class ObjectFactory {
 
     @SuppressWarnings("unchecked")
     public <T> T create(Class<T> type, Object... args) {
-        // Check if we have queued objects from setOne calls
-        if (queuedObjects.containsKey(type) && !queuedObjects.get(type).isEmpty()) {
-            return (T) queuedObjects.get(type).poll();
-        }
-
-        // Check if we have a setAlways override
-        if (alwaysObjects.containsKey(type)) {
-            return (T) alwaysObjects.get(type);
-        }
-
-        // Default creation using reflection
-        return createInstance(type, args);
+        return create(type, type, args);
     }
 
     @SuppressWarnings("unchecked")
