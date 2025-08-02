@@ -48,14 +48,22 @@ MyClass result = factory.create(MyClass.class).with();
 factory.setAlways(MyClass.class, mockObj);
 ```
 
-#### Global Factory (Static Access)
+#### Production Code Usage (Static Access)
 
 ```java
 import static com.specrec.GlobalObjectFactory.*;
 
-// Use anywhere without creating factory instances
-MyClass obj = create(MyClass.class).with("arg1", 42);
-IMyInterface obj = create(IMyInterface.class, MyImplementation.class).with();
+public class MyService {
+    public void processUser(String username, int age) {
+        // Replace 'new UserProcessor(username, age)' with factory call
+        UserProcessor processor = create(UserProcessor.class).with(username, age);
+        processor.process();
+        
+        // Interface/implementation pattern
+        IEmailService emailService = create(IEmailService.class, SmtpEmailService.class).with();
+        emailService.sendWelcomeEmail(username);
+    }
+}
 ```
 
 #### Constructor Parameter Logging
@@ -84,6 +92,58 @@ factory.clear(MyClass.class);
 
 // Clear all registered objects
 factory.clearAll();
+```
+
+#### Example Test with Constructor Tracking
+
+```java
+@Test
+public void testUserServiceWithMockedDependencies() {
+    // Arrange
+    ObjectFactory factory = new ObjectFactory();
+    
+    // Create mock that tracks constructor calls
+    MockEmailService mockEmailService = new MockEmailService();
+    factory.setOne(IEmailService.class, mockEmailService);
+    
+    MockUserRepository mockUserRepo = new MockUserRepository();
+    factory.setOne(IUserRepository.class, mockUserRepo);
+    
+    // Act - create service with mocked dependencies
+    UserService service = factory.create(UserService.class).with("smtp.example.com", 587);
+    service.registerUser("john", "john@example.com", 25);
+    
+    // Assert - verify constructor parameters were tracked
+    assertNotNull(mockEmailService.getLastParameterDetails());
+    assertEquals(2, mockEmailService.getLastParameterDetails().length);
+    assertEquals("host: String = smtp.example.com", 
+                 mockEmailService.getLastParameterDetails()[0].toString());
+    assertEquals("port: int = 587", 
+                 mockEmailService.getLastParameterDetails()[1].toString());
+    
+    // Verify interactions
+    assertEquals("john@example.com", mockEmailService.getLastEmailSent());
+    assertEquals("john", mockUserRepo.getLastUserSaved().getName());
+}
+
+// Mock implementations
+public class MockEmailService implements IEmailService, IConstructorCalledWith {
+    private ConstructorParameterInfo[] lastParams;
+    private String lastEmailSent;
+    
+    @Override
+    public void constructorCalledWith(ConstructorParameterInfo[] parameters) {
+        this.lastParams = parameters;
+    }
+    
+    @Override
+    public void sendWelcomeEmail(String email) {
+        this.lastEmailSent = email;
+    }
+    
+    public ConstructorParameterInfo[] getLastParameterDetails() { return lastParams; }
+    public String getLastEmailSent() { return lastEmailSent; }
+}
 ```
 
 ## Maven Configuration
