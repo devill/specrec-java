@@ -1,0 +1,5 @@
+🧩 complexMethod:
+  🔸 dict: {key=value}
+  🔸 nullValue: null
+  🔸 complexDate: 07/03/2024 14:02:11
+
