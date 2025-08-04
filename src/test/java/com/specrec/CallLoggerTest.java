@@ -39,7 +39,7 @@ public class CallLoggerTest {
         
         sharedSpecBook.append("🧪 Test started\n");
         
-        ITestService wrappedService = logger.wrap(mockService, "🔧");
+        ITestService wrappedService = logger.wrap(TestService.class, mockService, "🔧");
         wrappedService.calculate(10, 20);
         
         sharedSpecBook.append("🧪 Test ended\n");
@@ -52,7 +52,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         TestService mockService = new TestService();
 
-        ITestService wrappedService = logger.wrap(mockService, "🧪");
+        ITestService wrappedService = logger.wrap(TestService.class, mockService, "🧪");
 
         wrappedService.calculate(5, 10);
         wrappedService.processData("test input");
@@ -65,7 +65,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         FormattedTestService mockService = new FormattedTestService();
 
-        ITestService wrappedService = logger.wrap(mockService, "📝");
+        ITestService wrappedService = logger.wrap(FormattedTestService.class, mockService, "📝");
 
         wrappedService.calculate(5, 10);
         wrappedService.processData("secret");
@@ -78,7 +78,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         TypeTestService mockService = new TypeTestService();
 
-        ITypeTestService wrappedService = logger.wrap(mockService, "🎯");
+        ITypeTestService wrappedService = logger.wrap(TypeTestService.class, mockService, "🎯");
 
         Date dateTime = new Date(1703499045000L); // 2023-12-25 10:30:45 UTC
         double decimalValue = 123.45;
@@ -96,7 +96,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         CollectionTestService mockService = new CollectionTestService();
 
-        ICollectionTestService wrappedService = logger.wrap(mockService, "📚");
+        ICollectionTestService wrappedService = logger.wrap(CollectionTestService.class, mockService, "📚");
 
         List<String> list = Arrays.asList("item1", "item2", "item3");
         List<Integer> emptyList = new ArrayList<>();
@@ -110,7 +110,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         TestService mockService = new TestService();
 
-        ITestService wrappedService = logger.wrap(mockService, "⚡");
+        ITestService wrappedService = logger.wrap(TestService.class, mockService, "⚡");
 
         wrappedService.processData("test");
 
@@ -122,7 +122,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         TestService mockService = new TestService();
 
-        ITestService wrappedService = logger.wrap(mockService, "🌟");
+        ITestService wrappedService = logger.wrap(TestService.class, mockService, "🌟");
 
         wrappedService.processData(null);
 
@@ -134,7 +134,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         ExceptionTestService mockService = new ExceptionTestService();
 
-        IExceptionTestService wrappedService = logger.wrap(mockService, "💥");
+        IExceptionTestService wrappedService = logger.wrap(ExceptionTestService.class, mockService, "💥");
 
         try {
             wrappedService.throwException("error");
@@ -161,7 +161,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         FormatterContextTestService mockService = new FormatterContextTestService();
 
-        IFormatterContextTestService wrappedService = logger.wrap(mockService, "🔒");
+        IFormatterContextTestService wrappedService = logger.wrap(FormatterContextTestService.class, mockService, "🔒");
 
         wrappedService.methodWithIgnoredArgument("visible", "hidden");
 
@@ -173,7 +173,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         FormatterContextTestService mockService = new FormatterContextTestService();
 
-        IFormatterContextTestService wrappedService = logger.wrap(mockService, "🙈");
+        IFormatterContextTestService wrappedService = logger.wrap(FormatterContextTestService.class, mockService, "🙈");
 
         wrappedService.methodWithIgnoredReturn();
 
@@ -207,7 +207,7 @@ public class CallLoggerTest {
         };
         
         TestService testService = new TestService();
-        ITestService proxy = CallLoggerProxy.create(testService, logger, "🏗️");
+        ITestService proxy = CallLoggerProxy.create(ITestService.class, testService, logger, "🏗️");
         
         // Simulate constructor call
         ConstructorParameterInfo[] params = {
@@ -231,7 +231,7 @@ public class CallLoggerTest {
         TestServiceWithConstructorLogging service = factory.create(TestServiceWithConstructorLogging.class)
                                                           .with("param1", 123);
         
-        ITestService wrappedService = logger.wrap(service, "🔧");
+        ITestService wrappedService = logger.wrap(TestServiceWithConstructorLogging.class, service, "🔧");
         wrappedService.calculate(5, 10);
         
         Approvals.verify(sharedSpecBook.toString());
@@ -244,7 +244,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         ComplexArgumentService mockService = new ComplexArgumentService();
 
-        IComplexArgumentService wrappedService = logger.wrap(mockService, "🧩");
+        IComplexArgumentService wrappedService = logger.wrap(ComplexArgumentService.class, mockService, "🧩");
 
         Map<String, Object> dict = new HashMap<>();
         dict.put("key", "value");
@@ -272,7 +272,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         DetailedConstructorService mockService = new DetailedConstructorService("database.db", 5432, true);
 
-        IDetailedConstructorService wrappedService = logger.wrap(mockService, "🔧");
+        IDetailedConstructorService wrappedService = logger.wrap(DetailedConstructorService.class, mockService, "🔧");
 
         wrappedService.detailedMethod();
 
@@ -285,7 +285,7 @@ public class CallLoggerTest {
         ObjectFactory factory = new ObjectFactory();
         
         ConstructorTestService stubService = new ConstructorTestService("stub", 0);
-        factory.setAlways(IConstructorTestService.class, logger.wrap(stubService, "🔧"));
+        factory.setAlways(IConstructorTestService.class, logger.wrap(IConstructorTestService.class, stubService, "🔧"));
 
         // Create object through factory to test parameter name extraction
         IConstructorTestService service = factory.create(IConstructorTestService.class).with("config", 42);
@@ -294,13 +294,13 @@ public class CallLoggerTest {
         Approvals.verify(logger.getSpecBook().toString());
     }
 
-    // Missing InterfaceDetection tests
+    // Interface specification tests
     @Test
-    public void callLoggerProxy_WithInterfaceImplementation_ShouldDetectInterface() {
+    public void callLoggerProxy_WithInterfaceImplementation_ShouldUseExplicitInterface() {
         CallLogger logger = new CallLogger();
         InterfaceImplementationService mockService = new InterfaceImplementationService();
 
-        IInterfaceImplementationService wrappedService = logger.wrap(mockService, "🔍");
+        IInterfaceImplementationService wrappedService = logger.wrap(IInterfaceImplementationService.class, mockService, "🔍");
 
         wrappedService.detectInterface();
 
@@ -308,11 +308,11 @@ public class CallLoggerTest {
     }
 
     @Test
-    public void callLoggerProxy_WithComplexInterfaceHierarchy_ShouldDetectCorrectInterface() {
+    public void callLoggerProxy_WithComplexInterfaceHierarchy_ShouldUseExplicitInterface() {
         CallLogger logger = new CallLogger();
         ComplexHierarchyService mockService = new ComplexHierarchyService();
 
-        IComplexHierarchyService wrappedService = logger.wrap(mockService, "🏗️");
+        IComplexHierarchyService wrappedService = logger.wrap(IComplexHierarchyService.class, mockService, "🏗️");
 
         wrappedService.hierarchyMethod();
 
@@ -320,11 +320,11 @@ public class CallLoggerTest {
     }
 
     @Test
-    public void callLoggerProxy_WithNonInterfaceName_ShouldFallbackToInterfaceDetection() {
+    public void callLoggerProxy_WithNonInterfaceName_ShouldUseExplicitInterfaceType() {
         CallLogger logger = new CallLogger();
         NonInterfaceNameService mockService = new NonInterfaceNameService();
 
-        INonInterfaceNameService wrappedService = logger.wrap(mockService, "🔄");
+        INonInterfaceNameService wrappedService = logger.wrap(INonInterfaceNameService.class, mockService, "🔄");
 
         wrappedService.fallbackMethod();
 
@@ -337,7 +337,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger();
         SimpleService mockService = new SimpleService();
 
-        ISimpleService wrappedService = logger.wrap(mockService, "🤷");
+        ISimpleService wrappedService = logger.wrap(SimpleService.class, mockService, "🤷");
 
         wrappedService.simpleMethod();
 
@@ -345,30 +345,11 @@ public class CallLoggerTest {
     }
 
     @Test
-    public void callLoggerProxy_WithMultipleInterfaces_ShouldPickMostSpecificInterface() {
-        StringBuilder sharedSpecBook = new StringBuilder();
-        CallLogger logger = new CallLogger(sharedSpecBook);
-        ObjectFactory factory = new ObjectFactory();
-        
-        // Create service that implements IConstructorCalledWith for constructor logging  
-        MultiInterfaceService mockService = new MultiInterfaceService();
-        IMultiInterfaceService wrappedService = logger.wrap(mockService, "🎯");
-        
-        // Manually trigger constructor logging to see interface detection
-        ConstructorParameterInfo[] params = {};
-        ((IConstructorCalledWith) wrappedService).constructorCalledWith(params);
-
-        wrappedService.complexMethod();
-
-        Approvals.verify(sharedSpecBook.toString());
-    }
-
-    @Test
-    public void callLoggerProxy_WithOnlyMarkerInterfaces_ShouldFallbackToClassName() {
+    public void callLogger_ManualInterfaceLogging_ShouldUseProvidedInterfaceName() {
         CallLogger logger = new CallLogger();
         
-        // Test interface detection by using manual logging to show detected interface name
-        logger.forInterface("auto-detect")  // This will trigger interface detection
+        // Test manual interface specification in logging
+        logger.forInterface("ICustomInterface")
               .withArgument("test", "param1")
               .log("testMethod");
 
@@ -381,7 +362,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger(sharedSpecBook);
         
         ConstructorWithIgnoreService mockService = new ConstructorWithIgnoreService("public", "secret", "visible");
-        IConstructorWithIgnoreService wrappedService = logger.wrap(mockService, "🔒");
+        IConstructorWithIgnoreService wrappedService = logger.wrap(IConstructorWithIgnoreService.class, mockService, "🔒");
         
         // Manually trigger constructor logging to test ignoreArgument functionality
         ConstructorParameterInfo[] params = {
@@ -400,7 +381,7 @@ public class CallLoggerTest {
         CallLogger logger = new CallLogger(sharedSpecBook);
         
         ConstructorWithNoteService mockService = new ConstructorWithNoteService("config", 5432);
-        IConstructorWithNoteService wrappedService = logger.wrap(mockService, "📝");
+        IConstructorWithNoteService wrappedService = logger.wrap(IConstructorWithNoteService.class, mockService, "📝");
         
         // Manually trigger constructor logging to test addNote functionality
         ConstructorParameterInfo[] params = {
@@ -417,20 +398,15 @@ public class CallLoggerTest {
         StringBuilder sharedSpecBook = new StringBuilder();
         CallLogger logger = new CallLogger(sharedSpecBook);
         
-        // Test with constructor calls to demonstrate interface detection difference
-        AmbiguousInterfaceService mockService1 = new AmbiguousInterfaceService();
-        AmbiguousInterfaceService mockService2 = new AmbiguousInterfaceService();
-
-        // Without explicit interface - uses brittle detection (should pick ISecondaryService - most methods)
-        IAmbiguousService wrappedService1 = logger.wrap(mockService1, "🔍");
+        // Test that explicit interface type is correctly used in constructor logging
+        AmbiguousInterfaceService mockService = new AmbiguousInterfaceService();
         
-        // With explicit interface - reliable interface detection (should use IAmbiguousService)
-        IAmbiguousService wrappedService2 = logger.wrap(IAmbiguousService.class, mockService2, "✅");
+        // Explicit interface specification ensures correct interface name in logs
+        IAmbiguousService wrappedService = logger.wrap(IAmbiguousService.class, mockService, "✅");
         
-        // Trigger constructor logging to see interface names
+        // Trigger constructor logging to verify interface name
         ConstructorParameterInfo[] params = {};
-        ((IConstructorCalledWith) wrappedService1).constructorCalledWith(params);
-        ((IConstructorCalledWith) wrappedService2).constructorCalledWith(params);
+        ((IConstructorCalledWith) wrappedService).constructorCalledWith(params);
 
         Approvals.verify(sharedSpecBook.toString());
     }
@@ -633,7 +609,7 @@ interface IInterfaceImplementationService {
 class InterfaceImplementationService implements IInterfaceImplementationService {
     @Override
     public void detectInterface() {
-        // This method is for testing interface detection
+        // This method is for testing explicit interface usage
     }
 }
 
@@ -648,7 +624,7 @@ interface IBaseService {
 class ComplexHierarchyService implements IComplexHierarchyService {
     @Override
     public void hierarchyMethod() {
-        // This method is for testing complex interface hierarchy detection
+        // This method is for testing explicit interface with complex hierarchy
     }
 
     @Override
@@ -664,7 +640,7 @@ interface INonInterfaceNameService {
 class NonInterfaceNameService implements INonInterfaceNameService {
     @Override
     public void fallbackMethod() {
-        // This method is for testing interface name fallback detection
+        // This method is for testing explicit interface name usage
     }
 }
 

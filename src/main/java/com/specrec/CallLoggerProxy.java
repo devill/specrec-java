@@ -8,13 +8,8 @@ import java.lang.reflect.Proxy;
 public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWith {
     private final Object target;
     private final CallLogger logger;
-    private final String emoji;  
-    private String interfaceName;
+    private final String emoji;
     private final Class<?> explicitInterfaceType;
-
-    private CallLoggerProxy(Object target, CallLogger logger, String emoji) {
-        this(target, logger, emoji, null);
-    }
 
     private CallLoggerProxy(Object target, CallLogger logger, String emoji, Class<?> explicitInterfaceType) {
         this.target = target;
@@ -45,16 +40,7 @@ public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWit
     }
 
     private String determineInterfaceName() {
-        if (interfaceName != null && !interfaceName.trim().isEmpty()) {
-            return interfaceName;
-        }
-
-        // Use explicit interface type if provided
-        if (explicitInterfaceType != null) {
-            return explicitInterfaceType.getSimpleName();
-        }
-
-        return findMainInterface();
+        return explicitInterfaceType.getSimpleName();
     }
 
     private String findMainInterface() {
@@ -287,11 +273,6 @@ public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWit
     private void logOutputParameters(CallLogger callLogger, Method method, Object[] args) {
         // Java doesn't have out parameters like C#, so this is a no-op
         // In Java, modifications to object references would be reflected in the original objects
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T create(T target, CallLogger logger, String emoji) {
-        return create(null, target, logger, emoji);
     }
 
     @SuppressWarnings("unchecked")
