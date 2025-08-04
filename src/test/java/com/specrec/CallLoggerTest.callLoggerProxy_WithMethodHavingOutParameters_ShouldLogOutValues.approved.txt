@@ -1,0 +1,4 @@
+📤 tryGetValue:
+  🔸 key: key
+  🔹 Returns: value_for_key
+

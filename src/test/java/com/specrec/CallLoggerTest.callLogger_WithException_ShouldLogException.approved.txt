@@ -1,0 +1,4 @@
+ FailedMethod:
+  🔸 param: input
+  🗒️ Exception: Something went wrong
+

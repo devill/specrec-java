@@ -1,0 +1,4 @@
+🏗️ ITestService constructor called with:
+  🔸 param1: value1
+  🔸 param2: 42
+

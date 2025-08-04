@@ -1,0 +1,4 @@
+ ITestService constructor called with:
+  🔸 customName1: value1
+  🔸 customName2: value2
+

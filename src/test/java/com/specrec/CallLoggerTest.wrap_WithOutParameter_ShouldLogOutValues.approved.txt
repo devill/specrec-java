@@ -1,0 +1,4 @@
+🔍 tryGetValue:
+  🔸 key: input
+  🔹 Returns: value_for_input
+

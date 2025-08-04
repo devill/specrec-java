@@ -1,0 +1,6 @@
+🔧 IConstructorTestService constructor called with:
+  🔸 arg0: config
+  🔸 arg1: 42
+
+🔧 testMethod:
+
