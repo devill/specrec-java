@@ -46,6 +46,14 @@ public class CallLogger {
         return wrap(target, "🔧");
     }
 
+    public <I> I wrap(Class<I> interfaceType, I target, String emoji) {
+        return CallLoggerProxy.create(interfaceType, target, this, emoji);
+    }
+
+    public <I> I wrap(Class<I> interfaceType, I target) {
+        return wrap(interfaceType, target, "🔧");
+    }
+
     public CallLogger withReturn(Object returnValue, String description) {
         this.returnValue = returnValue;
         return this;

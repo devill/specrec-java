@@ -412,6 +412,29 @@ public class CallLoggerTest {
         Approvals.verify(sharedSpecBook.toString());
     }
 
+    @Test
+    public void wrap_WithExplicitInterfaceType_ShouldUseProvidedInterfaceName() {
+        StringBuilder sharedSpecBook = new StringBuilder();
+        CallLogger logger = new CallLogger(sharedSpecBook);
+        
+        // Test with constructor calls to demonstrate interface detection difference
+        AmbiguousInterfaceService mockService1 = new AmbiguousInterfaceService();
+        AmbiguousInterfaceService mockService2 = new AmbiguousInterfaceService();
+
+        // Without explicit interface - uses brittle detection (should pick ISecondaryService - most methods)
+        IAmbiguousService wrappedService1 = logger.wrap(mockService1, "🔍");
+        
+        // With explicit interface - reliable interface detection (should use IAmbiguousService)
+        IAmbiguousService wrappedService2 = logger.wrap(IAmbiguousService.class, mockService2, "✅");
+        
+        // Trigger constructor logging to see interface names
+        ConstructorParameterInfo[] params = {};
+        ((IConstructorCalledWith) wrappedService1).constructorCalledWith(params);
+        ((IConstructorCalledWith) wrappedService2).constructorCalledWith(params);
+
+        Approvals.verify(sharedSpecBook.toString());
+    }
+
 }
 
 // Test interfaces and implementations
@@ -761,4 +784,41 @@ class ConstructorWithNoteService implements IConstructorWithNoteService, IConstr
     public void processData() {
         // Test method
     }
+}
+
+// Test interfaces for explicit interface type testing
+interface IAmbiguousService {
+    void ambiguousMethod();
+}
+
+interface ISecondaryService {
+    void secondaryMethod();
+    void anotherSecondaryMethod();
+    void thirdSecondaryMethod();
+    void fourthSecondaryMethod();
+    void fifthSecondaryMethod();
+}
+
+class AmbiguousInterfaceService implements IAmbiguousService, ISecondaryService {
+    @Override
+    public void ambiguousMethod() {
+        // Main method we want to test
+    }
+
+    // ISecondaryService has more methods, so without explicit interface type,
+    // the brittle detection algorithm would pick ISecondaryService instead of IAmbiguousService
+    @Override
+    public void secondaryMethod() {}
+    
+    @Override
+    public void anotherSecondaryMethod() {}
+    
+    @Override
+    public void thirdSecondaryMethod() {}
+    
+    @Override
+    public void fourthSecondaryMethod() {}
+    
+    @Override
+    public void fifthSecondaryMethod() {}
 }

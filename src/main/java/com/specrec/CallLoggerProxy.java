@@ -8,13 +8,19 @@ import java.lang.reflect.Proxy;
 public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWith {
     private final Object target;
     private final CallLogger logger;
-    private final String emoji;
+    private final String emoji;  
     private String interfaceName;
+    private final Class<?> explicitInterfaceType;
 
     private CallLoggerProxy(Object target, CallLogger logger, String emoji) {
+        this(target, logger, emoji, null);
+    }
+
+    private CallLoggerProxy(Object target, CallLogger logger, String emoji, Class<?> explicitInterfaceType) {
         this.target = target;
         this.logger = logger;
         this.emoji = emoji != null ? emoji : "";
+        this.explicitInterfaceType = explicitInterfaceType;
     }
 
     @Override
@@ -41,6 +47,11 @@ public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWit
     private String determineInterfaceName() {
         if (interfaceName != null && !interfaceName.trim().isEmpty()) {
             return interfaceName;
+        }
+
+        // Use explicit interface type if provided
+        if (explicitInterfaceType != null) {
+            return explicitInterfaceType.getSimpleName();
         }
 
         return findMainInterface();
@@ -280,6 +291,11 @@ public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWit
 
     @SuppressWarnings("unchecked")
     public static <T> T create(T target, CallLogger logger, String emoji) {
+        return create(null, target, logger, emoji);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <I> I create(Class<I> interfaceType, I target, CallLogger logger, String emoji) {
         Class<?> targetClass = target.getClass();
         Class<?>[] targetInterfaces = targetClass.getInterfaces();
         
@@ -305,9 +321,9 @@ public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWit
             proxyInterfaces[targetInterfaces.length] = IConstructorCalledWith.class;
         }
 
-        CallLoggerProxy handler = new CallLoggerProxy(target, logger, emoji);
+        CallLoggerProxy handler = new CallLoggerProxy(target, logger, emoji, interfaceType);
         
-        return (T) Proxy.newProxyInstance(
+        return (I) Proxy.newProxyInstance(
             targetClass.getClassLoader(),
             proxyInterfaces,
             handler
