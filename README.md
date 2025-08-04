@@ -2,6 +2,8 @@
 
 **Automated Legacy Testing Tools for Java**
 
+![Spec Rec Logo](./SpecRecLogo.png)
+
 ## Overview
 
 SpecRec makes legacy code testable through automated instrumentation and transparent record-replay capabilities. By replacing direct object instantiation with controllable factories and wrapping dependencies with recording proxies, SpecRec eliminates the manual effort required to characterize and test existing systems.
