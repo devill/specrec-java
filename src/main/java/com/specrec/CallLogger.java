@@ -2,6 +2,7 @@ package com.specrec;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -258,6 +259,7 @@ public class CallLogger {
     private String formatDateTime(Object value) {
         if (value instanceof Date) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             return sdf.format((Date) value);
         }
         return value.toString();
