@@ -37,6 +37,10 @@ public class CallLogFormatterContext {
         return constructorArgNames.get();
     }
 
+    static CallLogger getCurrentLogger() {
+        return currentCallLogger.get();
+    }
+
     public static void ignoreCall() {
         String methodName = currentMethodName.get();
         CallLogger logger = currentCallLogger.get();

@@ -45,6 +45,9 @@ hs_err_pid*
 # Unit test reports
 TEST-*.xml
 
+# Approval tests - ignore received files
+*.received.txt
+
 # Package Files
 *.jar
 *.war

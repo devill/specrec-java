@@ -375,6 +375,43 @@ public class CallLoggerTest {
         Approvals.verify(logger.getSpecBook().toString());
     }
 
+    @Test
+    public void constructorCalledWith_WithIgnoreArgument_ShouldHideSpecificArguments() {
+        StringBuilder sharedSpecBook = new StringBuilder();
+        CallLogger logger = new CallLogger(sharedSpecBook);
+        
+        ConstructorWithIgnoreService mockService = new ConstructorWithIgnoreService("public", "secret", "visible");
+        IConstructorWithIgnoreService wrappedService = logger.wrap(mockService, "🔒");
+        
+        // Manually trigger constructor logging to test ignoreArgument functionality
+        ConstructorParameterInfo[] params = {
+            new ConstructorParameterInfo("param1", String.class, "public"),
+            new ConstructorParameterInfo("param2", String.class, "secret"),
+            new ConstructorParameterInfo("param3", String.class, "visible")
+        };
+        ((IConstructorCalledWith) wrappedService).constructorCalledWith(params);
+
+        Approvals.verify(sharedSpecBook.toString());
+    }
+
+    @Test
+    public void constructorCalledWith_WithAddNote_ShouldIncludeNotesInConstructorLog() {
+        StringBuilder sharedSpecBook = new StringBuilder();
+        CallLogger logger = new CallLogger(sharedSpecBook);
+        
+        ConstructorWithNoteService mockService = new ConstructorWithNoteService("config", 5432);
+        IConstructorWithNoteService wrappedService = logger.wrap(mockService, "📝");
+        
+        // Manually trigger constructor logging to test addNote functionality
+        ConstructorParameterInfo[] params = {
+            new ConstructorParameterInfo("connectionString", String.class, "config"),
+            new ConstructorParameterInfo("port", Integer.class, 5432)
+        };
+        ((IConstructorCalledWith) wrappedService).constructorCalledWith(params);
+
+        Approvals.verify(sharedSpecBook.toString());
+    }
+
 }
 
 // Test interfaces and implementations
@@ -678,5 +715,50 @@ class MarkerOnlyService implements IMarkerInterface {
     @Override
     public void markerMethod() {
         // This should fall back to class name since IMarkerInterface has only one method
+    }
+}
+
+// Constructor context testing interfaces and implementations
+
+interface IConstructorWithIgnoreService {
+    void doWork();
+}
+
+class ConstructorWithIgnoreService implements IConstructorWithIgnoreService, IConstructorCalledWith {
+    public ConstructorWithIgnoreService(String publicParam, String secretParam, String visibleParam) {
+        // Constructor with mixed public/secret parameters
+    }
+
+    @Override
+    public void constructorCalledWith(ConstructorParameterInfo[] parameters) {
+        // Ignore the secret parameter (index 1)
+        CallLogFormatterContext.ignoreArgument(1);
+        CallLogFormatterContext.addNote("Constructor with hidden secret parameter");
+    }
+
+    @Override
+    public void doWork() {
+        // Test method
+    }
+}
+
+interface IConstructorWithNoteService {
+    void processData();
+}
+
+class ConstructorWithNoteService implements IConstructorWithNoteService, IConstructorCalledWith {
+    public ConstructorWithNoteService(String connectionString, int port) {
+        // Constructor that should include notes
+    }
+
+    @Override
+    public void constructorCalledWith(ConstructorParameterInfo[] parameters) {
+        CallLogFormatterContext.addNote("Database connection initialized");
+        CallLogFormatterContext.addNote("Port configuration validated");
+    }
+
+    @Override
+    public void processData() {
+        // Test method
     }
 }

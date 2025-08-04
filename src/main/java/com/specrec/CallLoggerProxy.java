@@ -122,11 +122,19 @@ public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWit
     }
 
     private void logConstructorCall(String interfaceName, ConstructorParameterInfo[] parameters) {
-        CallLogger callLogger = new CallLogger(logger.specBook, emoji);
-        callLogger.forInterface(interfaceName);
-
-        addConstructorArguments(callLogger, parameters);
-        callLogger.log("constructorCalledWith");
+        // Use the context logger that may have been modified by the target's constructorCalledWith() method
+        CallLogger contextLogger = CallLogFormatterContext.getCurrentLogger();
+        if (contextLogger != null) {
+            contextLogger.forInterface(interfaceName);
+            addConstructorArguments(contextLogger, parameters);
+            contextLogger.log("constructorCalledWith");
+        } else {
+            // Fallback to creating a new logger if context is not available
+            CallLogger callLogger = new CallLogger(logger.specBook, emoji);
+            callLogger.forInterface(interfaceName);
+            addConstructorArguments(callLogger, parameters);
+            callLogger.log("constructorCalledWith");
+        }
     }
 
     private void addConstructorArguments(CallLogger callLogger, ConstructorParameterInfo[] parameters) {
@@ -134,6 +142,11 @@ public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWit
 
         String[] constructorArgNames = CallLogFormatterContext.getConstructorArgumentNames();
         for (int i = 0; i < parameters.length; i++) {
+            // Check if this argument should be ignored (same logic as method arguments)
+            if (shouldIgnoreArgument(callLogger, "constructorCalledWith", i)) {
+                continue;
+            }
+            
             ConstructorParameterInfo parameter = parameters[i];
             String argName = getArgumentName(constructorArgNames, i, parameter.getName());
             callLogger.withArgument(parameter.getValue(), argName);
