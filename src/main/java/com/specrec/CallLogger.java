@@ -147,15 +147,7 @@ public class CallLogger {
             try {
                 String className = stack[4].getClassName();
                 Class<?> clazz = Class.forName(className);
-                Class<?>[] interfaces = clazz.getInterfaces();
-                
-                for (Class<?> iface : interfaces) {
-                    String name = iface.getSimpleName();
-                    if (name.startsWith("I") && !name.equals("IConstructorCalledWith")) {
-                        return name;
-                    }
-                }
-                return clazz.getSimpleName();
+                return CallLoggerProxy.findMainInterfaceFromClass(clazz);
             } catch (ClassNotFoundException e) {
                 // Fall back to class name from stack trace
                 String className = stack[4].getClassName();

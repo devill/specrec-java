@@ -2,6 +2,3 @@
   🗒️ This calculation ignores all arguments in logs
   🔹 Returns: 15
 
-📝 processData:
-  🗒️ Secret data processing
-

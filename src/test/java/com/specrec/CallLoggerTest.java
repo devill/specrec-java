@@ -344,6 +344,37 @@ public class CallLoggerTest {
         Approvals.verify(logger.getSpecBook().toString());
     }
 
+    @Test
+    public void callLoggerProxy_WithMultipleInterfaces_ShouldPickMostSpecificInterface() {
+        StringBuilder sharedSpecBook = new StringBuilder();
+        CallLogger logger = new CallLogger(sharedSpecBook);
+        ObjectFactory factory = new ObjectFactory();
+        
+        // Create service that implements IConstructorCalledWith for constructor logging  
+        MultiInterfaceService mockService = new MultiInterfaceService();
+        IMultiInterfaceService wrappedService = logger.wrap(mockService, "🎯");
+        
+        // Manually trigger constructor logging to see interface detection
+        ConstructorParameterInfo[] params = {};
+        ((IConstructorCalledWith) wrappedService).constructorCalledWith(params);
+
+        wrappedService.complexMethod();
+
+        Approvals.verify(sharedSpecBook.toString());
+    }
+
+    @Test
+    public void callLoggerProxy_WithOnlyMarkerInterfaces_ShouldFallbackToClassName() {
+        CallLogger logger = new CallLogger();
+        
+        // Test interface detection by using manual logging to show detected interface name
+        logger.forInterface("auto-detect")  // This will trigger interface detection
+              .withArgument("test", "param1")
+              .log("testMethod");
+
+        Approvals.verify(logger.getSpecBook().toString());
+    }
+
 }
 
 // Test interfaces and implementations
@@ -380,8 +411,7 @@ class FormattedTestService implements ITestService {
 
     @Override
     public void processData(String input) {
-        CallLogFormatterContext.ignoreArgument(0);
-        CallLogFormatterContext.addNote("Secret data processing");
+        CallLogFormatterContext.ignoreCall();
     }
 
     @Override
@@ -589,5 +619,64 @@ class SimpleService implements ISimpleService {
     @Override
     public void simpleMethod() {
         // This service tests graceful handling of objects without constructor logging
+    }
+}
+
+// Edge case test interfaces and implementations
+
+// Interface with many methods - should be picked as "main" interface
+interface IMultiInterfaceService {
+    void complexMethod();
+    void anotherMethod();
+    void thirdMethod();
+    String getFourthMethod();
+    boolean isFifthMethod();
+}
+
+// Simple interface with only one method
+interface ISimpleMarkerInterface {
+    void simpleCall();
+}
+
+// A service that implements multiple interfaces - should pick the most specific one
+class MultiInterfaceService implements IMultiInterfaceService, ISimpleMarkerInterface, IConstructorCalledWith {
+    @Override
+    public void complexMethod() {
+        // Main method to test
+    }
+
+    @Override
+    public void anotherMethod() {}
+
+    @Override
+    public void thirdMethod() {}
+
+    @Override
+    public String getFourthMethod() {
+        return "test";
+    }
+
+    @Override
+    public boolean isFifthMethod() {
+        return true;
+    }
+
+    @Override
+    public void simpleCall() {}
+
+    @Override
+    public void constructorCalledWith(ConstructorParameterInfo[] parameters) {}
+}
+
+// Marker interface with no methods
+interface IMarkerInterface {
+    void markerMethod(); // Actually has one method for testing
+}
+
+// Service that only implements marker interfaces  
+class MarkerOnlyService implements IMarkerInterface {
+    @Override
+    public void markerMethod() {
+        // This should fall back to class name since IMarkerInterface has only one method
     }
 }

@@ -39,26 +39,86 @@ public class CallLoggerProxy implements InvocationHandler, IConstructorCalledWit
     }
 
     private String determineInterfaceName() {
-        if (interfaceName != null && isValidInterfaceName(interfaceName)) {
+        if (interfaceName != null && !interfaceName.trim().isEmpty()) {
             return interfaceName;
         }
 
         return findMainInterface();
     }
 
-    private boolean isValidInterfaceName(String interfaceName) {
-        return interfaceName.startsWith("I") && interfaceName.length() > 1;
-    }
-
     private String findMainInterface() {
         Class<?>[] interfaces = target.getClass().getInterfaces();
+        
+        // Find the interface with the most methods (most specific)
+        Class<?> mainInterface = null;
+        int maxMethods = 0;
+        
         for (Class<?> iface : interfaces) {
-            String name = iface.getSimpleName();
-            if (name.startsWith("I") && !name.equals("IConstructorCalledWith")) {
-                return name;
+            // Skip marker interfaces (interfaces with no methods or only marker methods)
+            if (isMarkerInterface(iface)) {
+                continue;
+            }
+            
+            int methodCount = iface.getDeclaredMethods().length;
+            if (methodCount > maxMethods) {
+                maxMethods = methodCount;
+                mainInterface = iface;
             }
         }
+        
+        if (mainInterface != null) {
+            return mainInterface.getSimpleName();
+        }
+        
         return target.getClass().getSimpleName();
+    }
+    
+    private boolean isMarkerInterface(Class<?> iface) {
+        // IConstructorCalledWith is a marker interface for our framework
+        if (iface.equals(IConstructorCalledWith.class)) {
+            return true;
+        }
+        
+        // Consider interfaces with no methods as marker interfaces
+        return iface.getDeclaredMethods().length == 0;
+    }
+    
+    // Utility method to find the main interface from a class
+    public static String findMainInterfaceFromClass(Class<?> clazz) {
+        Class<?>[] interfaces = clazz.getInterfaces();
+        
+        // Find the interface with the most methods (most specific)
+        Class<?> mainInterface = null;
+        int maxMethods = 0;
+        
+        for (Class<?> iface : interfaces) {
+            // Skip marker interfaces
+            if (isMarkerInterfaceStatic(iface)) {
+                continue;
+            }
+            
+            int methodCount = iface.getDeclaredMethods().length;
+            if (methodCount > maxMethods) {
+                maxMethods = methodCount;
+                mainInterface = iface;
+            }
+        }
+        
+        if (mainInterface != null) {
+            return mainInterface.getSimpleName();
+        }
+        
+        return clazz.getSimpleName();
+    }
+    
+    private static boolean isMarkerInterfaceStatic(Class<?> iface) {
+        // IConstructorCalledWith is a marker interface for our framework
+        if (iface.equals(IConstructorCalledWith.class)) {
+            return true;
+        }
+        
+        // Consider interfaces with no methods as marker interfaces
+        return iface.getDeclaredMethods().length == 0;
     }
 
     private void logConstructorCall(String interfaceName, ConstructorParameterInfo[] parameters) {
