@@ -1,0 +1,4 @@
+📝 IConstructorWithNoteService constructor called with:
+  🔸 connectionString: config
+  🔸 port: 5432
+

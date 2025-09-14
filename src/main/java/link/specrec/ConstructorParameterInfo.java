@@ -1,4 +1,4 @@
-package com.specrec;
+package link.specrec;
 
 /**
  * Contains information about a constructor parameter including its name, type, and value.

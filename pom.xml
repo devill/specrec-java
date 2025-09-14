@@ -1,13 +1,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.specrec</groupId>
+  <groupId>link.specrec</groupId>
   <artifactId>specrec</artifactId>
   <packaging>jar</packaging>
   <version>0.0.1</version>
   <name>SpecRec</name>
   <description>SpecRec - Automated Legacy Testing Tools for Java</description>
-  <url>https://github.com/specrec</url>
+  <url>https://github.com/devill/specrec-java</url>
+
+  <licenses>
+    <license>
+      <name>PolyForm Noncommercial License 1.0.0</name>
+      <url>https://polyformproject.org/licenses/noncommercial/1.0.0/</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Ivett</name>
+      <email>ivett@specrec.link</email>
+      <organization>SpecRec</organization>
+      <organizationUrl>https://specrec.link</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/devill/specrec-java.git</connection>
+    <developerConnection>scm:git:ssh://github.com:devill/specrec-java.git</developerConnection>
+    <url>https://github.com/devill/specrec-java/tree/main</url>
+  </scm>
+
 
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
@@ -63,6 +86,78 @@
           <parameters>true</parameters>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.3.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.10.1</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.2.7</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.8.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <publishingServerId>central</publishingServerId>
+          <autoPublish>false</autoPublish>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

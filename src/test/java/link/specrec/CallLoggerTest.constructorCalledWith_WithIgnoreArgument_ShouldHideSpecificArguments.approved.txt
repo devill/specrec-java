@@ -1,0 +1,4 @@
+🔒 IConstructorWithIgnoreService constructor called with:
+  🔸 param1: public
+  🔸 param3: visible
+

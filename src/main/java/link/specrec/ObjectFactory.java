@@ -1,4 +1,4 @@
-package com.specrec;
+package link.specrec;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;

@@ -1,4 +1,4 @@
-package com.specrec;
+package link.specrec;
 
 /**
  * Interface for test doubles that need to log constructor arguments to the storybook.

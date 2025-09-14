@@ -1,4 +1,4 @@
-package com.specrec;
+package link.specrec;
 
 import org.approvaltests.Approvals;
 import org.junit.jupiter.api.Test;

@@ -1,0 +1,26 @@
+<!-- Maven settings.xml template for publishing to Maven Central -->
+<!-- Copy this file to ~/.m2/settings.xml and fill in your credentials -->
+<settings>
+  <servers>
+    <server>
+      <id>central</id>
+      <!-- Generate a user token from https://central.sonatype.com -->
+      <!-- Go to Account > Generate User Token -->
+      <username>YOUR_TOKEN_USERNAME</username>
+      <password>YOUR_TOKEN_PASSWORD</password>
+    </server>
+  </servers>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <!-- GPG passphrase for signing artifacts -->
+        <gpg.passphrase>YOUR_GPG_PASSPHRASE</gpg.passphrase>
+      </properties>
+    </profile>
+  </profiles>
+</settings>

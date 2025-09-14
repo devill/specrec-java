@@ -1,0 +1,3 @@
+🔒 methodWithIgnoredArgument:
+  🔸 arg0: visible
+

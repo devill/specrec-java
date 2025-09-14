@@ -1,0 +1,8 @@
+🎯 processTypes:
+  🔸 dateTime: 12/25/2023 10:10:45
+  🔸 decimal: 123.45
+  🔸 doubleVal: 67.89
+  🔸 floatVal: 12.34
+  🔸 array: 1,2,3
+  🔸 nullValue: null
+

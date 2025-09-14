@@ -41,7 +41,7 @@ In many cases it is easy to break the dependency, but it can prove challenging i
 In such situations you can use ObjectFactory to break the dependency with minimal change:
 
 ```java
-import static com.specrec.GlobalObjectFactory.*;
+import static link.specrec.GlobalObjectFactory.*;
 
 class MyService {
     public void complexOperation() {
@@ -105,7 +105,7 @@ factory.setAlways(MyClass.class, mockObj);
 #### Global Factory (Static Access)
 
 ```java
-import static com.specrec.GlobalObjectFactory.*;
+import static link.specrec.GlobalObjectFactory.*;
 
 // Use anywhere without creating factory instances
 MyClass obj = create(MyClass.class).with("arg1", 42);
@@ -290,7 +290,7 @@ Add to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.specrec</groupId>
+    <groupId>link.specrec</groupId>
     <artifactId>specrec</artifactId>
     <version>0.0.1</version>
 </dependency>

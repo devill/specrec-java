@@ -1,9 +1,9 @@
-package com.specrec;
+package link.specrec;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import static com.specrec.GlobalObjectFactory.*;
+import static link.specrec.GlobalObjectFactory.*;
 
 class ObjectFactoryInstanceManagementTest {
 

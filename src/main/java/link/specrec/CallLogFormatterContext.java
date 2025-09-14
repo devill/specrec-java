@@ -1,4 +1,4 @@
-package com.specrec;
+package link.specrec;
 
 import java.util.HashSet;
 import java.util.Set;

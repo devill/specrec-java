@@ -1,4 +1,4 @@
-package com.specrec;
+package link.specrec;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
