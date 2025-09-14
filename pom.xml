@@ -4,7 +4,7 @@
   <groupId>link.specrec</groupId>
   <artifactId>specrec</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <name>SpecRec</name>
   <description>SpecRec - Automated Legacy Testing Tools for Java</description>
   <url>https://github.com/devill/specrec-java</url>

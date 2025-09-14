@@ -211,14 +211,3 @@ public class ObjectFactory {
     }
 
 }
-
-// Global convenience functions
-class GlobalObjectFactory {
-    public static <T> ObjectFactory.CreateBuilder<T> create(Class<T> type) {
-        return ObjectFactory.getInstance().create(type);
-    }
-
-    public static <I, T extends I> ObjectFactory.CreateBuilder<I> create(Class<I> interfaceType, Class<T> implementationType) {
-        return ObjectFactory.getInstance().create(interfaceType, implementationType);
-    }
-}
