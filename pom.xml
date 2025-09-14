@@ -4,7 +4,7 @@
   <groupId>link.specrec</groupId>
   <artifactId>specrec</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <name>SpecRec</name>
   <description>SpecRec - Automated Legacy Testing Tools for Java</description>
   <url>https://github.com/devill/specrec-java</url>
@@ -57,6 +57,16 @@
       <artifactId>approvaltests</artifactId>
       <version>24.9.0</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.14.11</version>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>3.3.0</version>
     </dependency>
   </dependencies>
 

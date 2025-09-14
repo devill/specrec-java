@@ -38,12 +38,12 @@ public class CallLogger {
         return specBook;
     }
 
-    public <I> I wrap(Class<I> interfaceType, I target, String emoji) {
-        return CallLoggerProxy.create(interfaceType, target, this, emoji);
+    public <I> I wrap(Class<I> type, I target, String emoji) {
+        return UnifiedProxyFactory.createLoggingProxy(type, target, this, emoji);
     }
 
-    public <I> I wrap(Class<I> interfaceType, I target) {
-        return wrap(interfaceType, target, "🔧");
+    public <I> I wrap(Class<I> type, I target) {
+        return wrap(type, target, "🔧");
     }
 
     public CallLogger withReturn(Object returnValue, String description) {
